@@ -1,10 +1,10 @@
-import { Application, RpcClass, rpcErr } from "mydog";
+import { Application, rpcErr } from "mydog";
 import { RoomMgr } from "../../../app/roomMgr";
 
 declare global {
     interface Rpc {
         chat: {
-            main: RpcClass<Remote>,
+            main: Remote,
         }
     }
 }

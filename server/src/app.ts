@@ -1,14 +1,15 @@
 
-import { Application, connector, createApp, Session } from "mydog";
+import { connector, createApp, Session } from "mydog";
 let app = createApp();
 
 import { getCpuUsage } from "./app/cpuUsage";
 import { HallMgr } from "./app/hallMgr";
 import { RoomMgr } from "./app/roomMgr";
 import { e_svrType } from "./config/someConfig";
+import { onUserLeave } from "./servers/connector/handler/main";
 
 app.appName = "chat demo"
-app.setConfig("connector", { "connector": connector.connectorWs, "heartbeat": 20 });  // 注意： unity改为connectorTcp， creator改为connectorWs
+app.setConfig("connector", { "connector": connector.connectorWs, "heartbeat": 20, "clientOffCb": onUserLeave });  // 注意： unity改为connectorTcp， creator改为connectorWs
 app.setConfig("encodeDecode", { "msgDecode": msgDecode, "msgEncode": msgEncode });
 app.setConfig("rpc", { "interval": 30 });
 app.setConfig("logger", function (level, info) {
@@ -31,8 +32,8 @@ app.configure(e_svrType.gate, () => {
     app.set("hallMgr", new HallMgr(app));
 });
 app.configure(e_svrType.connector, () => {
-    app.route(e_svrType.chat, (app: Application, session: Session, serverType: string, cb) => {
-        cb(session.get("svr"));
+    app.route(e_svrType.chat, (session: Session) => {
+        return session.get("svr");
     });
 });
 app.configure(e_svrType.chat, () => {
@@ -56,7 +57,7 @@ function msgDecode(cmdId: number, msgBuf: Buffer) {
 
 function msgEncode(cmdId: number, msg: any): Buffer {
     let msgStr = JSON.stringify(msg);
-    console.log("---<<<", app.routeConfig[cmdId], msgStr);
+    console.log("<<<---", app.routeConfig[cmdId], msgStr);
     return Buffer.from(msgStr);
 }
 

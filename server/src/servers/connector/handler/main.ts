@@ -1,4 +1,4 @@
-import { Application, Session } from "mydog";
+import { Application, Session, app } from "mydog";
 
 export default class Handler {
     app: Application;
@@ -28,7 +28,6 @@ export default class Handler {
 
                 session.bind(info.uid);
                 session.set({ "svr": info.chatSvr, "roomId": info.roomId });
-                session.setCloseCb(onUserLeave);
                 next(roomInfo);
             });
         });
@@ -36,7 +35,7 @@ export default class Handler {
 }
 
 
-function onUserLeave(app: Application, session: Session) {
+export function onUserLeave(session: Session) {
     if (!session.uid) {
         return;
     }

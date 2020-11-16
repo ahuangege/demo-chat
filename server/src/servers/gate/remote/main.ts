@@ -1,10 +1,10 @@
-import { Application, RpcClass, rpcErr } from "mydog";
+import { Application, rpcErr } from "mydog";
 import { HallMgr } from "../../../app/hallMgr";
 
 declare global {
     interface Rpc {
         gate: {
-            main: RpcClass<Remote>,
+            main: Remote,
         }
     }
 }
