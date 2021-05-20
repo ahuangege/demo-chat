@@ -9,7 +9,7 @@ import { e_svrType } from "./config/someConfig";
 import { onUserLeave } from "./servers/connector/handler/main";
 
 app.appName = "chat demo"
-app.setConfig("connector", { "connector": connector.connectorWs, "heartbeat": 20, "clientOffCb": onUserLeave, "interval": 50 });  // 注意： unity改为connectorTcp， creator改为connectorWs
+app.setConfig("connector", { "connector": connector.Ws, "heartbeat": 20, "clientOffCb": onUserLeave, "interval": 50 });  // 注意： unity改为connectorTcp， creator改为connectorWs
 app.setConfig("encodeDecode", { "msgDecode": msgDecode, "msgEncode": msgEncode });
 app.setConfig("rpc", { "interval": 30 });
 app.setConfig("logger", function (level, info) {
