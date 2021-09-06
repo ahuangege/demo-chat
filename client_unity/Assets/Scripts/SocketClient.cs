@@ -15,6 +15,7 @@ public static class SocketClient
     private static Dictionary<int, Action<string>> handlers = new Dictionary<int, Action<string>>();  //路由处理函数
     private static List<SocketMsg> msgCache = new List<SocketMsg>();                                  //缓存的消息列表
     private static object lockObj = new object();
+    private static string md5 = "";     // route消息列表的md5
 
     enum SocketOpenOrClose
     {
@@ -242,12 +243,20 @@ public static class SocketClient
                 Recive();
 
                 // 握手
-                byte[] bytes = new byte[5];
-                bytes[0] = 1 >> 24 & 0xff;
-                bytes[1] = 1 >> 16 & 0xff;
-                bytes[2] = 1 >> 8 & 0xff;
-                bytes[3] = 1 & 0xff;
+                Proto_Handshake_req msgReq = new Proto_Handshake_req();
+                msgReq.md5 = md5;
+                byte[] byteMsg = Encoding.UTF8.GetBytes(JsonUtility.ToJson(msgReq));
+                byte[] bytes = new byte[5 + byteMsg.Length];
+                int msgLen = byteMsg.Length + 1;
+                bytes[0] = (byte)(msgLen >> 24 & 0xff);
+                bytes[1] = (byte)(msgLen >> 16 & 0xff);
+                bytes[2] = (byte)(msgLen >> 8 & 0xff);
+                bytes[3] = (byte)(msgLen & 0xff);
                 bytes[4] = 2 & 0xff;
+                for (int i = 0; i < byteMsg.Length; i++)
+                {
+                    bytes[i + 5] = byteMsg[i];
+                }
                 mySocket.BeginSend(bytes, 0, bytes.Length, SocketFlags.None, null, null);
             }
             catch (Exception e)
@@ -353,7 +362,7 @@ public static class SocketClient
                 else if (tmpBytes[0] == 2)   // 握手回调
                 {
                     string tmpStr = Encoding.UTF8.GetString(tmpBytes.GetRange(1, tmpBytes.Count - 1).ToArray());
-                    Proto_Handshake handshakeMsg = JsonUtility.FromJson<Proto_Handshake>(tmpStr);
+                    Proto_Handshake_rsp handshakeMsg = JsonUtility.FromJson<Proto_Handshake_rsp>(tmpStr);
                     DealHandshake(handshakeMsg);
                 }
                 else if (tmpBytes[0] == 3)  // 心跳回调
@@ -371,7 +380,7 @@ public static class SocketClient
             }
         }
 
-        private void DealHandshake(Proto_Handshake msg)
+        private void DealHandshake(Proto_Handshake_rsp msg)
         {
             if (msg.heartbeat > 0)
             {
@@ -385,11 +394,16 @@ public static class SocketClient
                 heartbeatTimeoutTimer.AutoReset = false;
                 heartbeatTimeoutTimer.Interval = 4 * 1000;
             }
-            route = new List<string>();
-            for (int i = 0; i < msg.route.Length; i++)
+            md5 = msg.md5;
+            if (msg.route != null)
             {
-                route.Add(msg.route[i]);
+                route = new List<string>();
+                for (int i = 0; i < msg.route.Length; i++)
+                {
+                    route.Add(msg.route[i]);
+                }
             }
+
             SocketMsg openMsg = new SocketMsg();
             openMsg.msgId = (int)SocketOpenOrClose.open;
             pushMsg(openMsg);
@@ -453,9 +467,20 @@ public static class SocketClient
     /// <summary>
     /// 握手消息
     /// </summary>
-    private class Proto_Handshake
+    [Serializable]
+    private class Proto_Handshake_req
+    {
+        public string md5 = "";
+    }
+
+    /// <summary>
+    /// 握手消息
+    /// </summary>
+    [Serializable]
+    private class Proto_Handshake_rsp
     {
         public float heartbeat = 0;
+        public string md5 = "";
         public string[] route = null;
     }
 }

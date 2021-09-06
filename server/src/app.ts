@@ -12,7 +12,7 @@ app.appName = "chat demo"
 app.setConfig("connector", { "connector": connector.Ws, "heartbeat": 20, "clientOffCb": onUserLeave, "interval": 50 });  // 注意： unity改为connectorTcp， creator改为connectorWs
 app.setConfig("encodeDecode", { "msgDecode": msgDecode, "msgEncode": msgEncode });
 app.setConfig("rpc", { "interval": 30 });
-app.setConfig("logger", function (level, info) {
+app.setConfig("logger", function (type, level, info) {
     if (level !== "info") {
         console.log(app.serverId, level, info)
     }
@@ -51,13 +51,13 @@ process.on("uncaughtException", function (err: any) {
 
 function msgDecode(cmdId: number, msgBuf: Buffer) {
     let msgStr = msgBuf.toString();
-    console.log("--->>>", app.routeConfig[cmdId], msgStr);
+    console.log("↑ ", app.routeConfig[cmdId], msgStr);
     return JSON.parse(msgStr);
 }
 
 function msgEncode(cmdId: number, msg: any): Buffer {
     let msgStr = JSON.stringify(msg);
-    console.log("<<<---", app.routeConfig[cmdId], msgStr);
+    console.log(" ↓", app.routeConfig[cmdId], msgStr);
     return Buffer.from(msgStr);
 }
 
