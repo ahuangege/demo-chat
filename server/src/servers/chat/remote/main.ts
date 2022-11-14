@@ -1,4 +1,4 @@
-import { Application, rpcErr } from "mydog";
+import { Application } from "mydog";
 import { RoomMgr } from "../../../app/roomMgr";
 
 declare global {
@@ -15,14 +15,14 @@ export default class Remote {
         this.roomMgr = app.get<RoomMgr>("roomMgr");
     }
 
-    newRoom(roomId: number, roomName: string, cb: (err: rpcErr) => void) {
+    newRoom(roomId: number, roomName: string, cb: (err: boolean) => void) {
         this.roomMgr.newRoom(roomId, roomName);
-        cb(0);
+        cb(false);
     }
 
-    enterRoom(info: { "roomId": number, "uid": number, "sid": string, "nickname": string, "headId": number }, cb: (err: rpcErr, info: any) => void) {
+    enterRoom(info: { "roomId": number, "uid": number, "sid": string, "nickname": string, "headId": number }, cb: (err: boolean, info: any) => void) {
         let room = this.roomMgr.getRoom(info.roomId);
-        cb(0, room.enterRoom(info));
+        cb(false, room.enterRoom(info));
     }
 
     offline(info: { roomId: number, uid: number, sid: string }) {

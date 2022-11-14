@@ -12,9 +12,9 @@ app.appName = "chat demo"
 app.setConfig("connector", { "connector": connector.Ws, "heartbeat": 20, "clientOffCb": onUserLeave, "interval": 50 });  // 注意： unity改为connectorTcp， creator改为connectorWs
 app.setConfig("encodeDecode", { "msgDecode": msgDecode, "msgEncode": msgEncode });
 app.setConfig("rpc", { "interval": 30 });
-app.setConfig("logger", function (type, level, info) {
-    if (level !== "info") {
-        console.log(app.serverId, level, info)
+app.setConfig("logger", function (level, info) {
+    if (level !== "debug") {
+        console.log(level, info)
     }
 });
 app.setConfig("mydogList", () => {

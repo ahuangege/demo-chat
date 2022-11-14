@@ -15,10 +15,10 @@ export class HallMgr {
     /**
      * 请求进入房间
      */
-    enterRoom(roomName: string, cb: (err: number, info: { "code": number, "uid": number, "roomId": number, "chatSvr": string }) => void) {
+    enterRoom(roomName: string, cb: (err: boolean, info: { "code": number, "uid": number, "roomId": number, "chatSvr": string }) => void) {
         let room = this.rooms[roomName];
         if (room) {
-            return cb(0, { "code": 0, "uid": this.uid++, "roomId": room.roomId, "chatSvr": room.chatSvr });
+            return cb(false, { "code": 0, "uid": this.uid++, "roomId": room.roomId, "chatSvr": room.chatSvr });
         }
 
         let svrs = this.app.getServersByType(e_svrType.chat);
@@ -27,10 +27,10 @@ export class HallMgr {
         let uid = this.uid++;
         this.app.rpc(svr.id).chat.main.newRoom(roomId, roomName, (err) => {
             if (err) {
-                return cb(0, { "code": 1 } as any);
+                return cb(false, { "code": 1 } as any);
             }
             this.rooms[roomName] = { "roomId": roomId, "chatSvr": svr.id };
-            cb(0, { "code": 0, "uid": uid, "roomId": roomId, "chatSvr": svr.id });
+            cb(false, { "code": 0, "uid": uid, "roomId": roomId, "chatSvr": svr.id });
         });
     }
 
