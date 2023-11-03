@@ -9,28 +9,20 @@ export default class Handler {
     /**
      * 进入房间
      */
-    enterRoom(msg: { "roomName": string, "nickname": string, "headId": number }, session: Session, next: Function) {
-        this.app.rpc("gate").gate.main.enterRoom(msg.roomName, (err, info) => {
-            if (err || info.code !== 0) {
-                return next({ "code": 1, "info": "服务器错误" });
-            }
-            let tmpMsg = {
-                "roomId": info.roomId,
-                "uid": info.uid,
-                "sid": session.sid,
-                "nickname": msg.nickname,
-                "headId": msg.headId
-            };
-            this.app.rpc(info.chatSvr).chat.main.enterRoom(tmpMsg, (err, roomInfo) => {
-                if (err) {
-                    return next({ "code": 1, "info": "服务器错误" });
-                }
+    async enterRoom(msg: { "roomName": string, "nickname": string, "headId": number }, session: Session, next: Function) {
+        const info = await this.app.rpc("gate").gate.main.enterRoom(msg.roomName);
 
-                session.bind(info.uid);
-                session.set({ "svr": info.chatSvr, "roomId": info.roomId });
-                next(roomInfo);
-            });
-        });
+        let tmpMsg = {
+            "roomId": info.roomId,
+            "uid": info.uid,
+            "sid": session.sid,
+            "nickname": msg.nickname,
+            "headId": msg.headId
+        };
+        const roomInfo = await this.app.rpc(info.chatSvr).chat.main.enterRoom(tmpMsg);
+        session.bind(info.uid);
+        session.set({ "svr": info.chatSvr, "roomId": info.roomId });
+        next(roomInfo);
     }
 }
 
@@ -39,6 +31,6 @@ export function onUserLeave(session: Session) {
     if (!session.uid) {
         return;
     }
-    console.log("userleave")
-    app.rpc(session.get("svr")).chat.main.offline({ "roomId": session.get("roomId"), "uid": session.uid, "sid": session.sid });
+    console.log("userleave", session.uid);
+    app.rpc(session.get("svr"), true).chat.main.offline({ "roomId": session.get("roomId"), "uid": session.uid, "sid": session.sid });
 }

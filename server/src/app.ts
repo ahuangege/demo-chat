@@ -7,16 +7,33 @@ import { HallMgr } from "./app/hallMgr";
 import { RoomMgr } from "./app/roomMgr";
 import { e_svrType } from "./config/someConfig";
 import { onUserLeave } from "./servers/connector/handler/main";
+import * as fs from "fs";
+import * as path from "path";
 
-app.appName = "chat demo"
-app.setConfig("connector", { "connector": connector.Ws, "heartbeat": 20, "clientOffCb": onUserLeave, "interval": 50 });  // 注意： unity改为connectorTcp， creator改为connectorWs
+app.appName = "聊天室";
+if (app.env === "production" && app.serverInfo.frontend) {
+    app.set("key", fs.readFileSync(path.join(__dirname, "../api.mydog.wiki.key")));
+    app.set("cert", fs.readFileSync(path.join(__dirname, "../api.mydog.wiki.pem")));
+}
+app.setConfig("connector", {
+    "connector": connector.Ws,
+    "heartbeat": 20,
+    "clientOffCb": onUserLeave,
+    "interval": 50,
+    "ssl": app.env === "production",
+    "key": app.get("key"),
+    "cert": app.get("cert"),
+});
+
+
 app.setConfig("encodeDecode", { "msgDecode": msgDecode, "msgEncode": msgEncode });
 app.setConfig("rpc", { "interval": 30 });
-app.setConfig("logger", function (type, level, info) {
-    if (level !== "info") {
-        console.log(app.serverId, level, info)
+app.setConfig("logger", function (level, info) {
+    if (level !== "debug") {
+        console[level](app.serverId, info);
     }
 });
+
 app.setConfig("mydogList", () => {
     let userNum = "--";
     if (app.serverType === e_svrType.connector) {

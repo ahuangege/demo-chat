@@ -1,6 +1,6 @@
 import { Application } from "mydog";
 import { cmd } from "../config/cmd";
-import { DicObj } from "../config/someConfig";
+import { Dic } from "../config/someConfig";
 import { RoomMgr } from "./roomMgr";
 
 
@@ -9,8 +9,8 @@ export class Room {
     private roomId: number;
     private roomName: string;
     private num = 0;
-    private players: DicObj<{ "uid": number, "nickname": string, "headId": number }> = {};
-    private msgGroup: DicObj<number[]> = {};
+    private players: Dic<{ "uid": number, "nickname": string, "headId": number }> = {};
+    private msgGroup: Dic<number[]> = {};
 
     constructor(app: Application, roomId: number, roomName: string) {
         this.app = app;
@@ -66,7 +66,7 @@ export class Room {
 
         if (this.num === 0) {
             this.app.get<RoomMgr>("roomMgr").delRoom(this.roomId);
-            this.app.rpc("gate").gate.main.delRoom(this.roomName);
+            this.app.rpc("gate", true).gate.main.delRoom(this.roomName);
         }
     }
 

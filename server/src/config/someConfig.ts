@@ -1,9 +1,9 @@
-export interface DicObj<T = any> {
+export interface Dic<T = any> {
     [key: string]: T
 }
 
 export const enum e_svrType {
-    "gate" = "gate",
-    "connector" = "connector",
-    "chat" = "chat",
+    gate = "gate",
+    connector = "connector",
+    chat = "chat",
 }

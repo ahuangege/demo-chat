@@ -1,4 +1,4 @@
-import { Application, rpcErr } from "mydog";
+import { Application } from "mydog";
 import { HallMgr } from "../../../app/hallMgr";
 
 declare global {
@@ -15,11 +15,11 @@ export default class Remote {
         this.hallMgr = app.get<HallMgr>("hallMgr");
     }
 
-    enterRoom(roomName: string, cb: (err: rpcErr, info: { "code": number, "uid": number, "roomId": number, "chatSvr": string }) => void) {
-        this.hallMgr.enterRoom(roomName, cb);
+    async enterRoom(roomName: string) {
+        return this.hallMgr.enterRoom(roomName);
     }
 
-    delRoom(roomName: string) {
+    async delRoom(roomName: string) {
         this.hallMgr.delRoom(roomName);
     }
 }

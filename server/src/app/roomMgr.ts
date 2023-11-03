@@ -1,10 +1,10 @@
 import { Application } from "mydog";
-import { DicObj } from "../config/someConfig";
+import { Dic } from "../config/someConfig";
 import { Room } from "./room";
 
 export class RoomMgr {
     private app: Application;
-    private rooms: DicObj<Room> = {};
+    private rooms: Dic<Room> = {};
     constructor(app: Application) {
         this.app = app;
     }
