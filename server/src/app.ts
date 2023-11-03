@@ -12,8 +12,8 @@ import * as path from "path";
 
 app.appName = "聊天室";
 if (app.env === "production" && app.serverInfo.frontend) {
-    app.set("key", fs.readFileSync(path.join(__dirname, "../api.mydog.wiki.key")));
-    app.set("cert", fs.readFileSync(path.join(__dirname, "../api.mydog.wiki.pem")));
+    app.set("key", fs.readFileSync("/root/game_servers/common/api.mydog.wiki.key"));
+    app.set("cert", fs.readFileSync("/root/game_servers/common/api.mydog.wiki.pem"));
 }
 app.setConfig("connector", {
     "connector": connector.Ws,
